@@ -7,12 +7,13 @@ databaseexisted = os.path.isfile('schedule.db')
 dbcon = sqlite3.connect('schedule.db')
 with dbcon:
     cursor = dbcon.cursor()
-    cursor.execute("CREATE TABLE courses(id INTEGER PRIMARY KEY, course_name TEXT NOT NULL, "
-                   "student TEXT NOT NULL, number_of_students INTEGER NOT NULL,"
-                   " class_id INTEGER REFERENCES classrooms(id), number_of_students INTEGER NOT NULL)")  # create table courses
-    cursor.execute("CREATE TABLE students(grade TEXT PRIMARY KEY, count INTEGER NOT NULL)")  # create table students
-    cursor.execute("CREATE TABLE classrooms(id INTEGER PRIMARY KEY, location TEXT NOT NULL, "
-                   "current_course_id INTEGER NOT NULL, current_course_time_left INTEGER NOT NULL)")  # create table classrooms
+    if not databaseexisted:
+        cursor.execute("CREATE TABLE courses(id INTEGER PRIMARY KEY, course_name TEXT NOT NULL, "
+                       "student TEXT NOT NULL, number_of_students INTEGER NOT NULL,"
+                       " class_id INTEGER REFERENCES classrooms(id), course_length INTEGER NOT NULL)")  # create table courses
+        cursor.execute("CREATE TABLE students(grade TEXT PRIMARY KEY, count INTEGER NOT NULL)")  # create table students
+        cursor.execute("CREATE TABLE classrooms(id INTEGER PRIMARY KEY, location TEXT NOT NULL, "
+                       "current_course_id INTEGER NOT NULL, current_course_time_left INTEGER NOT NULL)")  # create table classrooms
 
 
 def add_student(arguments):
@@ -31,7 +32,7 @@ def add_course(arguments):
 with open(sys.argv[1], 'r') as config:
     lines = config.read().split('\n')
     for i in range(0, len(lines)):
-        arguments = lines[i].split(',')
+        arguments = lines[i].split(', ')
         if arguments[0] == 'S':
             add_student(arguments)
         elif arguments[0] == 'R':
@@ -40,10 +41,12 @@ with open(sys.argv[1], 'r') as config:
             add_course(arguments)
 
 
+
 def print_table():
     print('courses')
     cursor.execute("SELECT * FROM courses")
     list = cursor.fetchall()
+
     for element in list:
         print(str(element))
     print('classrooms')
@@ -57,4 +60,6 @@ def print_table():
     for element in list:
         print(str(element))
 
+
 print_table()
+dbcon.commit()
