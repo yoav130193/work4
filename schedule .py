@@ -33,8 +33,9 @@ with dbcon:
                         "WHERE cl.current_course_time_left=0 AND cl.current_course_id = co.id"))
 
         done_courses = cursor.fetchall()
-        for element in done_courses:
-            print("(" + str(iteration_number) + ") " + element[1] + ": " + element[0] + " is done")
+        for i in range(0, len(done_courses)):
+            done_courses[i] = "(" + str(iteration_number) + ") " + done_courses[i][1] + ": " + done_courses[i][
+                0] + " is done"
         cursor.execute("SELECT current_course_id "
                        "FROM classrooms "
                        "WHERE current_course_time_left=0 "
@@ -56,25 +57,35 @@ with dbcon:
                         "JOIN courses as co "
                         "ON cl.current_course_time_left>0 AND cl.current_course_id = co.id"))
         occupied_classrooms = cursor.fetchall()
-        for element in occupied_classrooms:
-            print("(" + str(iteration_number) + ") " + element[1] + ": occupied by " + element[0])
+        for i in range(0, len(occupied_classrooms)):
+            occupied_classrooms[i] = "(" + str(iteration_number) + ") " + occupied_classrooms[i][1] + ": occupied by " + \
+                                     occupied_classrooms[i][0]
 
         # add courses to classrooms
         cursor.execute("SELECT id,location FROM classrooms WHERE current_course_time_left=0")
         list_of_free_classroom = cursor.fetchall()
-        for i in range(0, len(list_of_free_classroom)):
+        i = 0
+        while (i < len(list_of_free_classroom)):
             id = list_of_free_classroom[i][0]
             cursor.execute("SELECT id, course_length,course_name FROM courses WHERE class_id=? ", (id,))
             one_course = cursor.fetchone()
             if one_course is not None:
-                print("(" + str(iteration_number) + ") " + list_of_free_classroom[i][1] + ": " + one_course[2]
-                      + " is schedule to start")
+                list_of_free_classroom[i] = "(" + str(iteration_number) + ") " + list_of_free_classroom[i][1] + ": " + \
+                                            one_course[2] + " is schedule to start"
                 cursor.execute("UPDATE classrooms  "
                                "SET current_course_id = ?, "
                                "current_course_time_left = ? "
                                "WHERE id= ?", (one_course[0], one_course[1], id,))
+                i = i + 1
+            else:
+                del (list_of_free_classroom[i])
 
+        for element in list_of_free_classroom:
+            print(element)
+        for element in occupied_classrooms:
+            print(element)
+        for element in done_courses:
+            print(element)
 
-
-        dbcon.commit();
+        dbcon.commit()
         iteration_number = iteration_number + 1
