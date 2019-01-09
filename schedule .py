@@ -1,6 +1,7 @@
 import os
 import sqlite3
 
+
 def print_table():
     print('courses')
     cursor.execute("SELECT * FROM courses")
@@ -53,15 +54,6 @@ def decreases_count(course_id, location, num):
         cursor.execute('UPDATE classrooms '
                        'SET current_course_time_left = current_course_time_left - 1 '
                        'WHERE current_course_id = ?', (course_id,))
-    cursor.execute('SELECT current_course_time_left '
-                   'FROM classrooms '
-                   'WHERE current_course_id = ?', (course_id,))
-    left = cursor.fetchone()
-    if left[0] != 0:
-        cursor.execute('UPDATE classrooms '
-                       'SET current_course_time_left = 0'
-                       'WHERE current_course_id = ?', (course_id,))
-
 
 
 def remove_course(course_id, location):
@@ -74,6 +66,14 @@ def remove_course(course_id, location):
         cursor.execute('DELETE '
                        'FROM courses '
                        'WHERE id = ?', (course_id,))
+    cursor.execute('SELECT current_course_time_left '
+                   'FROM classrooms '
+                   'WHERE current_course_id = ?', (course_id,))
+    left = cursor.fetchone()
+    if left[0] == 0:
+        cursor.execute('UPDATE classrooms '
+                       'SET current_course_id = 0 '
+                       'WHERE current_course_id = ?', (course_id,))
 
 
 databaseexisted = os.path.isfile('schedule.db')
@@ -104,4 +104,3 @@ with dbcon:
         iteration_number = iteration_number + 1
 
 dbcon.commit()
-
