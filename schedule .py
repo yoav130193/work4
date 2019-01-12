@@ -96,7 +96,7 @@ with dbcon:
             cursor.execute('SELECT * '
                            'FROM classrooms '
                            'WHERE id = ?', (one_classroom[0],))
-            one_classroom = cursor.fetchone();
+            one_classroom = cursor.fetchone()
             if one_classroom[3] == 0:
                 remove_course(one_classroom[2], one_classroom[1])
                 assign_course(one_classroom[0], one_classroom[1])

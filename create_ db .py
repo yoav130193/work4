@@ -32,14 +32,15 @@ def add_course(arguments):
 with open(sys.argv[1], 'r') as config:
     lines = config.read().split('\n')
     for i in range(0, len(lines)):
-        arguments = lines[i].split(', ')
+        arguments = lines[i].split(',')
+        for i in range(0, len(arguments)):
+            arguments[i] = arguments[i].strip()
         if arguments[0] == 'S':
             add_student(arguments)
         elif arguments[0] == 'R':
             add_classroom(arguments)
         elif arguments[0] == 'C':
             add_course(arguments)
-
 
 
 def print_table():
